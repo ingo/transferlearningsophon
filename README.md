@@ -37,18 +37,56 @@ Once you have downlaoded the subset of the JetClass dataset, place the .root fil
 '''
 HToBB_120.root, HToBB_121.root,...,HToBB_124.root
 
-## Inference script
+## Inference Script:
 
-Access the inference_jetclass.py file in this repository and download. The inference script:
-1. Reads particle-flow and scalar features from each event in the .root files
-2. Pads up to the 128 mparticles and skips events/logits events
-3. Calls the function getm_model from example_ParticleTransformer_sophon.py
-4. Writes CSV files with: file name, event index, truth label, some of the main kinematic features, and a 128-D vector embedding
-5. From a local terminal, run:
+The inference script performs the following tasks:
+
+1. Reads particle-flow and scalar features from each event in the `.root` files.
+2. Pads particle features to a maximum of 128 particles per event and skips events/logits that exceed this limit.
+3. Utilizes the `get_model` function from `example_ParticleTransformer_sophon.py` to process the data through the Sophon model.
+4. Outputs a CSV file containing:
+    - File name
+    - Event index
+    - Truth label
+    - Selected kinematic features
+    - A 128-dimensional vector embedding for each event
+
+_Note: Processing each `.root` file may take a few minutes._
+
+The script `inference_jetclass_W_COMMENTS.py` now supports several command-line arguments for flexible and robust usage:
+
+- `--input-dir`: Directory containing input ROOT files (default: `./data/JetClass/val_5M`)
+- `--output-csv`: Path for output CSV file (default: `HToCC_inference_with_embedding.csv`)
+- `--files`: List of ROOT files to process (default: five HToCC files)
+- `--debug`: Enable detailed debug print statements for feature shapes and model outputs
+- `--log-file`: Optional path to write all error/debug output to a log file
+
+### Example Usage
+
+Run with all defaults:
 ```sh
-python inference_with_embedding.py
 ```
-_It will take a couple minutes per root file_
+
+Specify input/output and files:
+```sh
+python inference_jetclass_W_COMMENTS.py --input-dir ./data/JetClass/val_5M --output-csv results.csv --files HToCC_120.root HToCC_121.root
+```
+
+Enable debug output and log to a file:
+```sh
+python inference_jetclass_W_COMMENTS.py --debug --log-file run.log
+```
+
+### Features
+- **Progress and Summary Reporting:**
+    - Prints a summary at the end: number of files processed, total events, number of errors/skipped events, and output file location.
+- **Error/Debug Logging:**
+    - All errors and debug output can be written to a log file if `--log-file` is specified.
+- **Validation and Sanity Checks:**
+    - Checks for missing keys in the ROOT files and warns/skips files with issues.
+    - Validates that all arrays have the correct number of events before processing.
+
+See `python inference_jetclass_W_COMMENTS.py --help` for a full list of options.
 
 ### Steps to follow in order to successfully run data through Sophon
 
